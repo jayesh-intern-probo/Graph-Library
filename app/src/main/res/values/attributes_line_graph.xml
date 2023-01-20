@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="LineGraph">
+        <attr name="graphLeftPadding" format="dimension" />
+        <attr name="graphRightPadding" format="dimension" />
+        <attr name="graphTopPadding" format="dimension" />
+        <attr name="graphBottomPadding" format="dimension" />
+        <attr name="axesThickness" format="dimension" />
+        <attr name="labelSize" format="dimension" />
+        <attr name="labelMarginFromXAxis" format="dimension" />
+        <attr name="labelMarginFromYAxis" format="dimension" />
+        <attr name="reserveSizeForYAxisTitle" format="dimension" />
+        <attr name="yAxisTitle" format="string" />
+    </declare-styleable>
+</resources>
