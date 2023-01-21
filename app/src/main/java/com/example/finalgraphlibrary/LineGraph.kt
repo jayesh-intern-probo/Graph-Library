@@ -1,10 +1,7 @@
 package com.example.finalgraphlibrary
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Rect
+import android.graphics.*
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
@@ -40,6 +37,8 @@ class LineGraph: View {
                     getDimensionPixelSize(R.styleable.LineGraph_reserveSizeForYAxisTitle, 0).toFloat()
                 yAxisLabelTitle =
                     getString(R.styleable.LineGraph_yAxisTitle).toString()
+                curvePaint.strokeWidth =
+                    getDimensionPixelSize(R.styleable.LineGraph_plotLineWidth, 4).toFloat()
             } finally {
                 recycle()
             }
@@ -56,6 +55,7 @@ class LineGraph: View {
     private var graphHeight: Float = 0F
     private var graphXOrigin: Float = 0F
     private var graphYOrigin: Float = 0F
+    private lateinit var graphData: LineGraphData
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -76,16 +76,22 @@ class LineGraph: View {
     private var canAxesBeDrawn: Boolean = false
     private var canXAxisLabelBeDrawn: Boolean = false
     private var canYAxisLabelBeDrawn: Boolean = false
+    private var areDataPointsSet: Boolean = false
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private var axesPaint: Paint = Paint()
-    private var labelPaint: Paint = Paint()
+    private val axesPaint: Paint = Paint()
+    private val labelPaint: Paint = Paint()
+    private val curvePaint: Paint = Paint()
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private var xAxisLabelList: MutableList<String> = mutableListOf()
-    private var yAxisLabelList: MutableList<String> = mutableListOf()
+    private val xAxisLabelList: MutableList<String> = mutableListOf()
+    private val yAxisLabelList: MutableList<String> = mutableListOf()
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    private val plotLinePath: Path = Path()
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -103,6 +109,24 @@ class LineGraph: View {
         paint.textAlign = Paint.Align.RIGHT
     }
 
+    private fun setUpCurvePaint(paint: Paint) {
+        //TODO Implementation Specific
+        var colorStart: String = "#5EA3FF"
+        var colorEnd: String = "#197BFF"
+        if(graphData.graphPointList[graphData.getCountPoints()-1].getOrdinate() > (graphYOrigin - (graphHeight-yAxisTitleReserveSize)/2)) {
+            colorStart = "#F2ADA5"
+            colorEnd = "#E7685A"
+        }
+
+        val linearGradient: LinearGradient = LinearGradient(
+            graphXOrigin, graphYOrigin,
+            graphXOrigin + graphWidth, graphYOrigin - graphHeight,
+            Color.parseColor(colorStart), Color.parseColor(colorEnd),
+            Shader.TileMode.MIRROR)
+        paint.shader = linearGradient;
+        paint.style = Paint.Style.STROKE
+    }
+
     fun setUpXAxisLabels(list: List<String>) {
         xAxisLabelList.clear()
         xAxisLabelList.addAll(0, list)
@@ -114,6 +138,16 @@ class LineGraph: View {
         yAxisLabelList.addAll(0, list)
         canYAxisLabelBeDrawn = true
     }
+
+    fun setUpData(data: List<Pair<Float, Float>>) {
+        graphData = LineGraphData(data)
+        areDataPointsSet = true
+    }
+
+    fun setUpMaxXValue(value: Float) = graphData.setUpMaxAbscissa(value)
+    fun setUpMinXValue(value: Float) = graphData.setUpMinAbscissa(value)
+    fun setUpMaxYValue(value: Float) = graphData.setUpMaxOrdinate(value)
+    fun setUpMinYValue(value: Float) = graphData.setUpMinOrdinate(value)
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -177,17 +211,32 @@ class LineGraph: View {
         canvas?.drawText(yAxisLabelTitle, xPosition, yPosition - bounds.top, labelPaint)
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    private fun plotGraphData(canvas: Canvas?, paint: Paint) {
+        setUpCurvePaint(paint)
+        plotLinePath.reset()
+        if(!graphData.isInitialized())
+            graphData.initializeList(graphWidth, graphHeight - yAxisTitleReserveSize, graphXOrigin, graphYOrigin)
 
+        plotLinePath.moveTo(graphData.graphPointList[0].getAbscissa(), graphData.graphPointList[0].getOrdinate())
 
+        for(i in 1 until graphData.getCountPoints()) {
+            Log.i("Points", "${graphData.graphPointList[i].getAbscissa()}, ${graphData.graphPointList[i].getOrdinate()}")
+            val controlX = (graphData.graphPointList[i-1].getAbscissa() + graphData.graphPointList[i].getAbscissa()) / 2
+            val controlY = graphData.graphPointList[i-1].getOrdinate()
+            val pointY = graphData.graphPointList[i].getOrdinate()
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
+            plotLinePath.cubicTo(
+                controlX,
+                controlY,
+                controlX,
+                pointY,
+                graphData.graphPointList[i].getAbscissa(),
+                graphData.graphPointList[i].getOrdinate()
+            )
+        }
+        setUpCurvePaint(paint)
+        canvas?.drawPath(plotLinePath, paint)
+    }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -207,5 +256,7 @@ class LineGraph: View {
             drawXAxisLabels(canvas, labelPaint)
         if(canYAxisLabelBeDrawn)
             drawYAxisLabels(canvas, labelPaint)
+        if(areDataPointsSet)
+            plotGraphData(canvas, curvePaint)
     }
 }
