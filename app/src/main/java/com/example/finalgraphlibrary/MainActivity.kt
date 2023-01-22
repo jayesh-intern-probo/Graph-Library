@@ -19,7 +19,6 @@ class MainActivity : AppCompatActivity() {
         var data: MutableList<Pair<Float, Float>> = mutableListOf()
         for(i in 1..15)
             data.add(Pair(3*i.toFloat(), Random().nextFloat()*100))
-        data.add(Pair(48F, 50.0F))
 
         lineGraph.setUpData(data)
         lineGraph.setUpMaxYValue(100F)

@@ -4,7 +4,10 @@ import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
 import android.util.Log
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.View
+import android.widget.OverScroller
 
 class LineGraph: View {
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -39,6 +42,8 @@ class LineGraph: View {
                     getString(R.styleable.LineGraph_yAxisTitle).toString()
                 curvePaint.strokeWidth =
                     getDimensionPixelSize(R.styleable.LineGraph_plotLineWidth, 4).toFloat()
+                markedPointRadius =
+                    getDimensionPixelSize(R.styleable.LineGraph_markerCircleRadius, 8).toFloat()
             } finally {
                 recycle()
             }
@@ -77,12 +82,18 @@ class LineGraph: View {
     private var canXAxisLabelBeDrawn: Boolean = false
     private var canYAxisLabelBeDrawn: Boolean = false
     private var areDataPointsSet: Boolean = false
+    private var canDottedLineBeDrawn: Boolean = false
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private val axesPaint: Paint = Paint()
     private val labelPaint: Paint = Paint()
     private val curvePaint: Paint = Paint()
+    private val dottedLinePaint: Paint = Paint()
+    private val markedPointPaintPrimary: Paint = Paint()
+    private val markedPointPaintSecondary: Paint = Paint()
+    private val rippleEffectPrimaryPaint: Paint = Paint()
+    private val rippleEffectSecondaryPaint: Paint = Paint()
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -95,12 +106,28 @@ class LineGraph: View {
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    private lateinit var touchArea: RectF
+    private var touchedIndex: Int = -1
+    private var markedPointRadius: Float = 0F
+    private var ripplePointRadius: Float = 0F
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     private fun initializeValues() {
         graphHeight = canvasHeight - graphTopPadding - graphBottomPadding
         graphWidth = canvasWidth - graphLeftPadding - graphRightPadding
         graphXOrigin = graphLeftPadding
         graphYOrigin = canvasHeight - graphBottomPadding
+        touchArea = RectF(graphXOrigin, graphYOrigin - graphHeight, graphXOrigin + graphWidth, graphYOrigin)
         canAxesBeDrawn = true
+        setUpRipplePaint()
+    }
+
+    private fun setUpRipplePaint() {
+        rippleEffectPrimaryPaint.style = Paint.Style.FILL_AND_STROKE
+        rippleEffectPrimaryPaint.color = Color.parseColor("#BAD7FF")
+        rippleEffectSecondaryPaint.style = Paint.Style.FILL_AND_STROKE
+        rippleEffectSecondaryPaint.color = Color.parseColor("#197BFF")
     }
 
     private fun setUpLabelPaint(paint: Paint) {
@@ -109,13 +136,22 @@ class LineGraph: View {
         paint.textAlign = Paint.Align.RIGHT
     }
 
+    private fun setUpDottedLinePaint(paint: Paint) {
+        paint.color = Color.BLACK
+        paint.strokeWidth = axesThickness
+        paint.style = Paint.Style.STROKE
+        paint.pathEffect = DashPathEffect(floatArrayOf(10F, 10F), 0F)
+    }
+
     private fun setUpCurvePaint(paint: Paint) {
         //TODO Implementation Specific
         var colorStart: String = "#5EA3FF"
         var colorEnd: String = "#197BFF"
         if(graphData.graphPointList[graphData.getCountPoints()-1].getOrdinate() > (graphYOrigin - (graphHeight-yAxisTitleReserveSize)/2)) {
             colorStart = "#F2ADA5"
+            rippleEffectPrimaryPaint.color = Color.parseColor("#F2ADA5")
             colorEnd = "#E7685A"
+            rippleEffectSecondaryPaint.color = Color.parseColor("#E7685A")
         }
 
         val linearGradient: LinearGradient = LinearGradient(
@@ -126,6 +162,14 @@ class LineGraph: View {
         paint.shader = linearGradient;
         paint.style = Paint.Style.STROKE
     }
+
+    private fun setUpMarkedPointPaint() {
+        markedPointPaintPrimary.color = Color.BLACK
+        markedPointPaintPrimary.style = Paint.Style.FILL_AND_STROKE
+        markedPointPaintSecondary.color = Color.WHITE
+        markedPointPaintSecondary.style = Paint.Style.FILL_AND_STROKE
+    }
+
 
     fun setUpXAxisLabels(list: List<String>) {
         xAxisLabelList.clear()
@@ -220,7 +264,6 @@ class LineGraph: View {
         plotLinePath.moveTo(graphData.graphPointList[0].getAbscissa(), graphData.graphPointList[0].getOrdinate())
 
         for(i in 1 until graphData.getCountPoints()) {
-            Log.i("Points", "${graphData.graphPointList[i].getAbscissa()}, ${graphData.graphPointList[i].getOrdinate()}")
             val controlX = (graphData.graphPointList[i-1].getAbscissa() + graphData.graphPointList[i].getAbscissa()) / 2
             val controlY = graphData.graphPointList[i-1].getOrdinate()
             val pointY = graphData.graphPointList[i].getOrdinate()
@@ -236,6 +279,36 @@ class LineGraph: View {
         }
         setUpCurvePaint(paint)
         canvas?.drawPath(plotLinePath, paint)
+    }
+
+    private fun drawDottedLine(canvas: Canvas?, paint: Paint) {
+        setUpDottedLinePaint(paint)
+        setUpMarkedPointPaint()
+        if(touchedIndex >= 0 && touchedIndex < graphData.getCountPoints()) {
+            val xPosition: Float = graphData.graphPointList[touchedIndex].getAbscissa()
+            val yPosition: Float = graphData.graphPointList[touchedIndex].getOrdinate()
+            canvas?.drawLine(xPosition, yPosition, xPosition, graphYOrigin - graphHeight, paint)
+
+            if(touchedIndex != graphData.getCountPoints() - 1) {
+                canvas?.drawCircle(xPosition, yPosition, markedPointRadius, markedPointPaintPrimary)
+                canvas?.drawCircle(xPosition, yPosition, markedPointRadius / 2, markedPointPaintSecondary)
+            }
+        }
+    }
+
+    private fun mockRippleEffect(canvas: Canvas?) {
+        if(ripplePointRadius < markedPointRadius)
+            ripplePointRadius += 0.1F
+        else
+            ripplePointRadius = 0F
+
+        val xPosition: Float = graphData.graphPointList[graphData.getCountPoints()-1].getAbscissa()
+        val yPosition: Float = graphData.graphPointList[graphData.getCountPoints()-1].getOrdinate()
+
+        canvas?.drawCircle(xPosition, yPosition, markedPointRadius, rippleEffectPrimaryPaint)
+        canvas?.drawCircle(xPosition, yPosition, ripplePointRadius, rippleEffectSecondaryPaint)
+
+        invalidate()
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -256,7 +329,54 @@ class LineGraph: View {
             drawXAxisLabels(canvas, labelPaint)
         if(canYAxisLabelBeDrawn)
             drawYAxisLabels(canvas, labelPaint)
-        if(areDataPointsSet)
+        if(areDataPointsSet) {
             plotGraphData(canvas, curvePaint)
+            mockRippleEffect(canvas)
+        }
+        if(canDottedLineBeDrawn)
+            drawDottedLine(canvas, dottedLinePaint)
+    }
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        val xTouchLocation: Float? = event?.x
+        val yTouchLocation: Float? = event?.y
+
+        when(event?.action) {
+            MotionEvent.ACTION_DOWN -> {
+                if(touchArea.contains(xTouchLocation!!, yTouchLocation!!)) {
+                    for(i in 1 until graphData.getCountPoints()) {
+                        if(xTouchLocation <= graphData.graphPointList[i].getAbscissa()) {
+                            canDottedLineBeDrawn = true
+                            touchedIndex = i
+                            return  true
+                        }
+                    }
+                }
+
+                canDottedLineBeDrawn = false
+            }
+
+            MotionEvent.ACTION_MOVE -> {
+                if(touchArea.contains(xTouchLocation!!, yTouchLocation!!)) {
+                    for(i in 1 until graphData.getCountPoints()) {
+                        if(xTouchLocation <= graphData.graphPointList[i].getAbscissa()) {
+                            canDottedLineBeDrawn = true
+                            touchedIndex = i
+                            invalidate()
+                            return  true
+                        }
+                    }
+                }
+
+                canDottedLineBeDrawn = false
+            }
+
+            MotionEvent.ACTION_UP -> {
+                canDottedLineBeDrawn = false
+                invalidate()
+            }
+        }
+
+        return true
     }
 }

@@ -12,5 +12,6 @@
         <attr name="reserveSizeForYAxisTitle" format="dimension" />
         <attr name="yAxisTitle" format="string" />
         <attr name="plotLineWidth" format="dimension" />
+        <attr name="markerCircleRadius" format="dimension" />
     </declare-styleable>
 </resources>

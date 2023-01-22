@@ -25,6 +25,7 @@
         graph:labelMarginFromYAxis="7dp"
         graph:yAxisTitle="%"
         graph:reserveSizeForYAxisTitle="18dp"
-        graph:plotLineWidth="4dp"/>
+        graph:plotLineWidth="4dp"
+        graph:markerCircleRadius="8dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

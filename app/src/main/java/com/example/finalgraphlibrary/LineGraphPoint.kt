@@ -1,12 +1,14 @@
 package com.example.finalgraphlibrary
 
+import android.graphics.Path
+
 class LineGraphPoint {
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     constructor(abscissa: Float, ordinate: Float) {
         this.abscissa = abscissa
         this.ordinate = ordinate
-        toHighLight = false
+        this.toHighLight = false
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
