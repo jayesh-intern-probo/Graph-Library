@@ -112,17 +112,6 @@ class LineGraph: View {
     private var ripplePointRadius: Float = 0F
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    private fun initializeValues() {
-        graphHeight = canvasHeight - graphTopPadding - graphBottomPadding
-        graphWidth = canvasWidth - graphLeftPadding - graphRightPadding
-        graphXOrigin = graphLeftPadding
-        graphYOrigin = canvasHeight - graphBottomPadding
-        touchArea = RectF(graphXOrigin, graphYOrigin - graphHeight, graphXOrigin + graphWidth, graphYOrigin)
-        canAxesBeDrawn = true
-        setUpRipplePaint()
-    }
-
     private fun setUpRipplePaint() {
         rippleEffectPrimaryPaint.style = Paint.Style.FILL_AND_STROKE
         rippleEffectPrimaryPaint.color = Color.parseColor("#BAD7FF")
@@ -170,6 +159,17 @@ class LineGraph: View {
         markedPointPaintSecondary.style = Paint.Style.FILL_AND_STROKE
     }
 
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    private fun initializeValues() {
+        graphHeight = canvasHeight - graphTopPadding - graphBottomPadding
+        graphWidth = canvasWidth - graphLeftPadding - graphRightPadding
+        graphXOrigin = graphLeftPadding
+        graphYOrigin = canvasHeight - graphBottomPadding
+        touchArea = RectF(graphXOrigin, graphYOrigin - graphHeight, graphXOrigin + graphWidth, graphYOrigin)
+        canAxesBeDrawn = true
+        setUpRipplePaint()
+    }
 
     fun setUpXAxisLabels(list: List<String>) {
         xAxisLabelList.clear()
@@ -352,7 +352,6 @@ class LineGraph: View {
                         }
                     }
                 }
-
                 canDottedLineBeDrawn = false
             }
 
@@ -367,7 +366,6 @@ class LineGraph: View {
                         }
                     }
                 }
-
                 canDottedLineBeDrawn = false
             }
 
