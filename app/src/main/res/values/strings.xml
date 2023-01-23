@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Final Graph Library</string>
+    <string name="bottom_arrow">&#9660;</string>
 </resources>

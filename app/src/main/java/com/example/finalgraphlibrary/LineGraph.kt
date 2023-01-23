@@ -200,12 +200,6 @@ class LineGraph: View {
         paint.strokeWidth = axesThickness
         canvas?.drawLine(graphXOrigin, graphYOrigin, graphXOrigin + graphWidth, graphYOrigin, paint)
         canvas?.drawLine(graphXOrigin, graphYOrigin, graphXOrigin, graphYOrigin - graphHeight, paint)
-
-//        paint.color = Color.BLUE
-//        canvas?.drawCircle(graphXOrigin, graphYOrigin, 5f, paint)
-//        canvas?.drawCircle(graphXOrigin + graphWidth, graphYOrigin, 5f, paint)
-//        canvas?.drawCircle(graphXOrigin, graphYOrigin - graphHeight, 5f, paint)
-//        canvas?.drawCircle(graphXOrigin + graphWidth, graphYOrigin - graphHeight, 5f, paint)
     }
 
     private fun drawXAxisLabels(canvas: Canvas?, paint: Paint) {
@@ -225,8 +219,6 @@ class LineGraph: View {
                 xAxisLabelList.size - 1 -> graphXOrigin + graphWidth - bounds.width().toFloat()
                 else -> widthRemaining - bounds.width().toFloat() / 2
             }
-
-//            canvas?.drawPoint(xPosition , yPosition, axesPaint)
             canvas?.drawText(label, xPosition + bounds.right, yPosition - bounds.top, labelPaint)
         }
     }
@@ -245,7 +237,6 @@ class LineGraph: View {
             val xPosition = graphXOrigin - bounds.left - yAxisLabelMargin
             val yPosition = graphYOrigin - ((i+1) * part)
 
-//            canvas?.drawPoint(xPosition, yPosition, axesPaint)
             canvas?.drawText(label, xPosition, yPosition - bounds.top / 2, paint)
         }
 
@@ -287,7 +278,7 @@ class LineGraph: View {
         if(touchedIndex >= 0 && touchedIndex < graphData.getCountPoints()) {
             val xPosition: Float = graphData.graphPointList[touchedIndex].getAbscissa()
             val yPosition: Float = graphData.graphPointList[touchedIndex].getOrdinate()
-            canvas?.drawLine(xPosition, yPosition, xPosition, graphYOrigin - graphHeight, paint)
+            canvas?.drawLine(xPosition, yPosition, xPosition, graphYOrigin - graphHeight - yAxisTitleReserveSize, paint)
 
             if(touchedIndex != graphData.getCountPoints() - 1) {
                 canvas?.drawCircle(xPosition, yPosition, markedPointRadius, markedPointPaintPrimary)
