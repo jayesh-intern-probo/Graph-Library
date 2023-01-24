@@ -2,12 +2,14 @@ package com.example.finalgraphlibrary
 
 import android.content.Context
 import android.graphics.*
+import android.net.wifi.ScanResult.InformationElement
 import android.util.AttributeSet
 import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import android.widget.OverScroller
+import androidx.constraintlayout.widget.ConstraintLayout
 
 class LineGraph: View {
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -61,6 +63,7 @@ class LineGraph: View {
     private var graphXOrigin: Float = 0F
     private var graphYOrigin: Float = 0F
     private lateinit var graphData: LineGraphData
+    private lateinit var popUp: PopUp
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -169,6 +172,10 @@ class LineGraph: View {
         touchArea = RectF(graphXOrigin, graphYOrigin - graphHeight, graphXOrigin + graphWidth, graphYOrigin)
         canAxesBeDrawn = true
         setUpRipplePaint()
+    }
+
+    fun assignPopUp(popUp: PopUp) {
+        this.popUp = popUp
     }
 
     fun setUpXAxisLabels(list: List<String>) {
@@ -287,6 +294,17 @@ class LineGraph: View {
         }
     }
 
+    private fun setPopUp() {
+        if(touchedIndex >= 0 && touchedIndex < graphData.getCountPoints()) {
+            val xPosition: Float = graphData.graphPointList[touchedIndex].getAbscissa()
+            val probability: Float = graphData.graphPointList[touchedIndex].getProbability()
+            val information: String = graphData.graphPointList[touchedIndex].getInformation()
+
+            popUp.setUpPopUp(probability, "9:35 pm", information)
+            popUp.setUpLocation(xPosition)
+        }
+    }
+
     private fun mockRippleEffect(canvas: Canvas?) {
         if(ripplePointRadius < markedPointRadius)
             ripplePointRadius += 0.1F
@@ -339,6 +357,7 @@ class LineGraph: View {
                         if(xTouchLocation <= graphData.graphPointList[i].getAbscissa()) {
                             canDottedLineBeDrawn = true
                             touchedIndex = i
+                            setPopUp()
                             return  true
                         }
                     }
@@ -352,6 +371,7 @@ class LineGraph: View {
                         if(xTouchLocation <= graphData.graphPointList[i].getAbscissa()) {
                             canDottedLineBeDrawn = true
                             touchedIndex = i
+                            setPopUp()
                             invalidate()
                             return  true
                         }
@@ -362,6 +382,7 @@ class LineGraph: View {
 
             MotionEvent.ACTION_UP -> {
                 canDottedLineBeDrawn = false
+                popUp.hidePopUp()
                 invalidate()
             }
         }

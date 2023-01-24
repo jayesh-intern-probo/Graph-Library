@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clTextPrompt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:paddingTop="9dp"
+        android:paddingLeft="12dp"
+        android:paddingBottom="9dp"
+        android:background="@drawable/rectangle">
+
+
+        <TextView
+            android:id="@+id/tvProbability"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintLeft_toLeftOf="@id/clTextPrompt"
+            app:layout_constraintTop_toTopOf="@id/clTextPrompt"
+            android:text="40%"
+            android:textFontWeight="600"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#8CBDFF"
+            android:paddingRight="9dp"/>
+
+        <TextView
+            android:id="@+id/tvTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/tvProbability"
+            app:layout_constraintLeft_toLeftOf="@id/clTextPrompt"
+            app:layout_constraintBottom_toBottomOf="@id/clTextPrompt"
+            android:text="9:35 pm"
+            android:textColor="@color/white"
+            android:textSize="8sp"
+            android:paddingRight="9dp"/>
+
+        <TextView
+            android:id="@+id/tvHeadline"
+            android:visibility="visible"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintLeft_toRightOf="@id/tvProbability"
+            app:layout_constraintRight_toRightOf="@id/clTextPrompt"
+            app:layout_constraintTop_toTopOf="@id/clTextPrompt"
+            app:layout_constraintBottom_toBottomOf="@id/clTextPrompt"
+            android:layout_marginLeft="12dp"
+            android:text="Ranbir’s Shamshera movie declared flop, lowest opening in 2022."
+            android:textSize="12sp"
+            android:textColor="@color/white"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ImageView
+        android:layout_height="7dp"
+        android:layout_width="15dp"
+        android:background="@drawable/triangle"
+        android:id="@+id/downTriangle"
+        app:layout_constraintLeft_toLeftOf="@id/clTextPrompt"
+        app:layout_constraintRight_toRightOf="@id/clTextPrompt"
+        app:layout_constraintTop_toBottomOf="@+id/clTextPrompt"
+        android:rotation="180" />
+
+</merge>

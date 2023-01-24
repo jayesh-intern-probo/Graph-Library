@@ -13,5 +13,6 @@
         <attr name="yAxisTitle" format="string" />
         <attr name="plotLineWidth" format="dimension" />
         <attr name="markerCircleRadius" format="dimension" />
+        <attr name="showPopUp" format="boolean" />
     </declare-styleable>
 </resources>

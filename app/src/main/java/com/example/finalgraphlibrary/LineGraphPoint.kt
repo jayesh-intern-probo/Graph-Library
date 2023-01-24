@@ -1,6 +1,7 @@
 package com.example.finalgraphlibrary
 
 import android.graphics.Path
+import kotlin.math.abs
 
 class LineGraphPoint {
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -8,7 +9,9 @@ class LineGraphPoint {
     constructor(abscissa: Float, ordinate: Float) {
         this.abscissa = abscissa
         this.ordinate = ordinate
+        this.probability = abscissa
         this.toHighLight = false
+        this.information = ""
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -16,6 +19,8 @@ class LineGraphPoint {
     private var abscissa: Float = 0F
     private var ordinate: Float = 0F
     private var toHighLight: Boolean = false
+    private var probability: Float = 0F
+    private var information: String = ""
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -23,13 +28,29 @@ class LineGraphPoint {
 
     fun getOrdinate(): Float = ordinate
 
-    fun setAbscissa(abscissa: Float){
+    fun getInformation(): String = information
+
+    fun getProbability(): Float = probability
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    fun setAbscissa(abscissa: Float) {
         this.abscissa = abscissa
     }
 
-    fun setOrdinate(ordinate: Float){
+    fun setOrdinate(ordinate: Float) {
         this.ordinate = ordinate
     }
+
+    fun setInformation(information: String){
+        this.information = information
+    }
+
+    fun setProbability(probability: Float) {
+        this.probability = probability
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
 
     fun highLight() {
         toHighLight = true

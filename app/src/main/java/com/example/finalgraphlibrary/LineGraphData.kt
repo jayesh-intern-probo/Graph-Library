@@ -36,6 +36,7 @@ class LineGraphData(private val list: List<Pair<Float, Float>>) {
             val ordinate: Float = graphYOrigin - ((pair.second - minGraphPoint.getOrdinate()) * unitY)
 
             graphPointList.add(LineGraphPoint(abscissa, ordinate))
+            graphPointList[graphPointList.size - 1].setProbability(pair.second)
         }
     }
 
