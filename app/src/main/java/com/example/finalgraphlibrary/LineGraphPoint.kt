@@ -32,6 +32,8 @@ class LineGraphPoint {
 
     fun getProbability(): Float = probability
 
+    fun toHighLight(): Boolean = toHighLight
+
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     fun setAbscissa(abscissa: Float) {

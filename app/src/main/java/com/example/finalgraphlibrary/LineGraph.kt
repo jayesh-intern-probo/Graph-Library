@@ -301,7 +301,7 @@ class LineGraph: View {
             val information: String = graphData.graphPointList[touchedIndex].getInformation()
 
             popUp.setUpPopUp(probability, "9:35 pm", information)
-            popUp.setUpLocation(xPosition)
+            popUp.setUpLocation(canvasWidth, xPosition)
         }
     }
 
@@ -362,6 +362,7 @@ class LineGraph: View {
                         }
                     }
                 }
+                popUp.hidePopUp()
                 canDottedLineBeDrawn = false
             }
 
@@ -377,6 +378,7 @@ class LineGraph: View {
                         }
                     }
                 }
+                popUp.hidePopUp()
                 canDottedLineBeDrawn = false
             }
 
@@ -389,4 +391,7 @@ class LineGraph: View {
 
         return true
     }
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 }

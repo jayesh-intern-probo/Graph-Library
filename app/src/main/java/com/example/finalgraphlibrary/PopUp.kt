@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.TextureView
 import android.view.View
+import android.view.View.OnClickListener
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -17,8 +18,8 @@ import java.lang.String.format
 class PopUp: ConstraintLayout {
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    constructor(context: Context): super(context)
-    constructor(context: Context, attributeSet: AttributeSet): super(context, attributeSet)
+    constructor(context: Context) : super(context)
+    constructor(context: Context, attributeSet: AttributeSet) : super(context, attributeSet)
 
     init {
         LayoutInflater.from(context).inflate(R.layout.merge, this, true)
@@ -29,8 +30,13 @@ class PopUp: ConstraintLayout {
         downTriangle = findViewById<ImageView>(R.id.downTriangle)
 
         textPrompt.visibility = GONE
-        information.visibility = GONE
+        //information.visibility = GONE
         downTriangle.visibility = GONE
+
+        textPrompt.addOnLayoutChangeListener {
+                view, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom
+            -> promptWidth = (right-left).toFloat() 
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -40,6 +46,7 @@ class PopUp: ConstraintLayout {
     private var time: TextView
     private var information: TextView
     private var downTriangle: ImageView
+    private var promptWidth: Float = 0F
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -56,12 +63,26 @@ class PopUp: ConstraintLayout {
         setUpInformation(information)
     }
 
-    fun setUpLocation(xPosition: Float) {
-        val layoutParams: ConstraintLayout.LayoutParams = textPrompt.layoutParams as LayoutParams
-        Log.i("Layout", "${layoutParams.matchConstraintMaxWidth}")
-        layoutParams.leftMargin = (xPosition - layoutParams.width/2f).toInt()
+    fun setUpLocation(screenWidth: Float, xPosition: Float) {
+        val layoutParamsPrompt: ConstraintLayout.LayoutParams = textPrompt.layoutParams as LayoutParams
+        val layoutParamsTriangle: ConstraintLayout.LayoutParams = downTriangle.layoutParams as LayoutParams
+        val offset: Float = (xPosition - promptWidth/2)
 
-        textPrompt.layoutParams = layoutParams
+        if(offset < 0) {
+            layoutParamsPrompt.leftMargin = 0
+            layoutParamsTriangle.leftMargin = (xPosition - layoutParamsTriangle.width/2f).toInt()
+        }
+        else if(screenWidth - offset < promptWidth) {
+            layoutParamsPrompt.leftMargin = (screenWidth - promptWidth).toInt()
+            layoutParamsTriangle.leftMargin = (promptWidth - (screenWidth - xPosition) - layoutParamsTriangle.width/2f).toInt()
+        }
+        else {
+            layoutParamsPrompt.leftMargin = offset.toInt()
+            layoutParamsTriangle.leftMargin = (promptWidth/2 - layoutParamsTriangle.width/2f).toInt()
+        }
+
+        textPrompt.layoutParams = layoutParamsPrompt
+        downTriangle.layoutParams = layoutParamsTriangle
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -75,7 +96,7 @@ class PopUp: ConstraintLayout {
     }
 
     private fun setUpInformation(information: String) {
-        if(information.isEmpty())
+        if (information.isEmpty())
             this.information.visibility = GONE
         else {
             this.information.visibility = VISIBLE
